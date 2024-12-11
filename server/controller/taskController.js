@@ -173,5 +173,125 @@ exports.postTaskActivity = async function(req, res) {
   }
 };
 
+exports.dashboardStatistics = async function(req, res) {
+  try {
+      const id = req.params.id; // User ID
+
+      // Fetch user and handle possible not found error
+      const user = await User.findById(id);
+      if (!user) {
+          return res.status(404).json({ status: false, message: "User not found." });
+      }
+
+      const isAdmin = user.isAdmin;
+      const userId = user._id;
+
+      // Fetch tasks based on user role (Admin or not)
+      const allTasks = isAdmin
+          ? await Task.find({ isTrashed: false })
+              .populate({
+                  path: "team",
+                  select: "name role title email",
+              })
+              .sort({ _id: -1 })
+          : await Task.find({
+              isTrashed: false,
+              team: { $all: [userId] },
+          })
+              .populate({
+                  path: "team",
+                  select: "name role title email",
+              })
+              .sort({ _id: -1 });
+
+      // Fetch top 10 active users
+      const users = await User.find({ isActive: true })
+          .select("name title role isAdmin createdAt")
+          .limit(10)
+          .sort({ _id: -1 });
+
+      // Group tasks by stage and calculate counts
+      const groupTasks = allTasks.reduce((result, task) => {
+          const stage = task.stage;
+
+          if (!result[stage]) {
+              result[stage] = 1;
+          } else {
+              result[stage] += 1;
+          }
+
+          return result;
+      }, {});
+
+      // Group tasks by priority
+      const groupData = Object.entries(
+          allTasks.reduce((result, task) => {
+              const { priority } = task;
+
+              result[priority] = (result[priority] || 0) + 1;
+              return result;
+          }, {})
+      ).map(([name, total]) => ({ name, total }));
+
+      // Calculate total tasks
+      const totalTasks = allTasks.length;
+      const last10Task = allTasks.slice(0, 10);
+
+      // Prepare summary data
+      const summary = {
+          totalTasks,
+          last10Task,
+          users: isAdmin ? users : [], // Only send users to admin
+          tasks: groupTasks,
+          graphData: groupData,
+      };
+
+      // Send successful response
+      res.status(200).json({
+          status: true,
+          message: "Successfully fetched dashboard statistics.",
+          ...summary,
+      });
+
+  } catch (error) {
+      console.error(error); // Log error for debugging
+      res.status(500).json({ status: false, message: "An error occurred while fetching dashboard statistics." });
+  }
+};
+
+// some confusion about query istrash value
+exports.getTasks = async function(req, res) {
+  try {
+    // Extract stage and isTrashed from query parameters
+    const { stage, isTrashed } = req.query;
+
+    // If isTrashed is undefined, it will default to false
+    let query = { isTrashed: isTrashed === 'true' }; // Ensures isTrashed is a boolean
+
+    if (stage) {
+      query.stage = stage; // Add stage filter if provided
+    }
+
+    // Fetch tasks from the database based on the query
+    let queryResult = Task.find(query)
+      .populate({
+        path: 'team',
+        select: 'name title email',
+      })
+      .sort({ _id: -1 }); // Sort by creation date in descending order
+
+    const tasks = await queryResult;
+
+    // Send response with the fetched tasks
+    res.status(200).json({
+      status: true,
+      tasks,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
+
 
 
