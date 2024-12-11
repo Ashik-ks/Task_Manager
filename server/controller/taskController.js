@@ -345,5 +345,56 @@ exports.createSubTask = async function(req,res){
     }
 }
 
+exports.updateTask = async function(req, res) {
+  try {
+    const id = req.params.tid;
+    const { title, team, stage, priority, assets, date } = req.body;
+
+    // Parse the date from a custom format (e.g., dd-MM-yyyy) to a JavaScript Date object
+    const parsedDate = parse(date, 'dd-MM-yyyy', new Date());
+
+    if (isNaN(parsedDate)) {
+      return res.status(400).json({ status: false, message: "Invalid date format." });
+    }
+
+    // The date is now a JavaScript Date object, so we can store it directly in MongoDB
+    const task = await Task.findById(id);
+
+    task.title = title;
+    task.date = parsedDate;  // Store the JavaScript Date object directly
+    task.priority = priority.toLowerCase();
+    task.assets = assets;
+    task.stage = stage.toLowerCase();
+    task.team = team;
+
+    await task.save();
+
+    res.status(200).json({ status: true, message: "Task updated successfully." });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+exports.trashTask = async function(req,res){
+  try {
+      const id= req.params.tid;
+  
+      const task = await Task.findById(id);
+  
+      task.isTrashed = true;
+  
+      await task.save();
+  
+      res.status(200).json({
+        status: true,
+        message: `Task trashed successfully.`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ status: false, message: error.message });
+    }
+}
+
 
 
