@@ -293,5 +293,57 @@ exports.getTasks = async function(req, res) {
   }
 };
 
+exports.getTask = async function(req,res) {
+  try {
+      const id = req.params.tid;
+  
+      const task = await Task.findById(id)
+        .populate({
+          path: "team",
+          select: "name title role email",
+        })
+        .populate({
+          path: "activities.by",
+          select: "name",
+        });
+  
+      res.status(200).json({
+        status: true,
+        task,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ status: false, message: error.message });
+    }
+  
+}
+
+exports.createSubTask = async function(req,res){
+  try {
+      const { title, tag, date } = req.body;
+  
+      const id = req.params.tid;
+  
+      const newSubTask = {
+        title,
+        date,
+        tag,
+      };
+  
+      const task = await Task.findById(id);
+  
+      task.subTasks.push(newSubTask);
+  
+      await task.save();
+  
+      res
+        .status(200)
+        .json({ status: true, message: "SubTask added successfully." });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ status: false, message: error.message });
+    }
+}
+
 
 
