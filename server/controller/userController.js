@@ -134,5 +134,105 @@ exports.getNotificationsList = async function (req, res) {
   }
 };
 
+exports.updateUserProfile = async function (req, res) {
+  try {
+    const userId = req.params.id;
+
+    // Validate userId format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid user ID.",
+      });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (user) {
+      // Only update fields that are passed in the request body
+      user.name = req.body.name || user.name;
+      user.title = req.body.title || user.title;
+      user.role = req.body.role || user.role;
+
+      // Save the updated user profile
+      const updatedUser = await user.save();
+
+      // Ensure password is not included in the response
+      updatedUser.password = undefined;
+
+      // Return the updated profile
+      res.status(200).json({
+        status: true,
+        message: "Profile Updated Successfully.",
+        user: updatedUser,
+      });
+    } else {
+      res.status(404).json({ status: false, message: "User not found." });
+    }
+  } catch (error) {
+    console.error(error);  // Log the error for debugging purposes
+    return res.status(500).json({
+      status: false,
+      message: error.message || "An unexpected error occurred while updating the profile.",
+    });
+  }
+};
+
+exports.markNotificationRead = async function (req,res) {
+  try {
+    const userId= req.params.id;
+    const id = req.params.nid;
+
+    const isReadType = req.query;
+
+    if (isReadType === "all") {
+      await Notification.updateMany(
+        { team: userId, isRead: { $nin: [userId] } },
+        { $push: { isRead: userId } },
+        { new: true }
+      );
+    } else {
+      await Notification.findOneAndUpdate(
+        { _id: id, isRead: { $nin: [userId] } },
+        { $push: { isRead: userId } },
+        { new: true }
+      );
+    }
+
+    res.status(201).json({ status: true, message: "Done" });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+}
+
+exports.changeUserPassword = async function (req,res) {
+  try {
+    const userId= req.params.id;
+
+    const user = await User.findById(userId);
+
+    if (user) {
+      user.password = req.body.password;
+
+      await user.save();
+
+      user.password = undefined;
+
+      res.status(201).json({
+        status: true,
+        message: `Password chnaged successfully.`,
+      });
+    } else {
+      res.status(404).json({ status: false, message: "User not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+}
+
+
 
 
