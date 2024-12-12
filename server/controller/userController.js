@@ -233,6 +233,44 @@ exports.changeUserPassword = async function (req,res) {
   }
 }
 
+exports.activateUserProfile = async function (req, res) {
+  try {
+    const userId = req.params.id;
 
+    const user = await User.findById(userId);
+
+    if (user) {
+      user.isActive = !user.isActive;  
+
+      await user.save();
+
+      res.status(200).json({
+        status: true,
+        message: `User account has been ${user.isActive ? "activated" : "deactivated"}.`,
+      });
+    } else {
+      res.status(404).json({ status: false, message: "User not found" });
+    }
+  } catch (error) {
+    // Catch and log any errors
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+exports.deleteUserProfile = async function(req,res){
+  try {
+    const id= req.params.id;
+
+    await User.findByIdAndDelete(id);
+
+    res
+      .status(200)
+      .json({ status: true, message: "User deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+}
 
 
