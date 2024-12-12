@@ -1,6 +1,6 @@
 const success_function = require("../utils/responsehandler").success_function
 const error_function = require("../utils/responsehandler").error_function
-const { users } = require('../db/model/user');
+const users= require('../db/model/user');
 const jwt  = require('jsonwebtoken');
 const control_data = require('../utils/control-data.json');
 const dotenv = require('dotenv');
@@ -56,7 +56,7 @@ exports.accessControl = async function (access_types,req,res,next) {
                         let user = await users.findOne({_id : user_id});
                         console.log("user : ",user);
 
-                        let user_type = user.userType;
+                        let user_type = user.role;
                         console.log("user_type : ",user_type);
 
                         let allowed = access_types.split(",").map((obj) => control_data[obj] );

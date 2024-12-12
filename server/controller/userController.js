@@ -104,13 +104,35 @@ exports.loginUser = async function (req, res) {
     }
 };
   
+exports.getTeamList = async function(req,res) {
+  try {
 
+    const users = await User.find().select("name title role email isActive");
 
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+}
 
+exports.getNotificationsList = async function (req, res) {
+  try {
+    const userId = req.params.id;
 
+    const notices = await Notification.find({
+      team: userId,
+      isRead: { $nin: [userId] }, // Find notifications where userId is NOT in isRead array
+    }).populate("task", "title");
 
+    console.log("Unread notifications:", notices);
 
-
+    res.status(201).json(notices);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
 
 
 

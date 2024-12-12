@@ -16,7 +16,7 @@ const taskSchema = new mongoose.Schema(
       default: "normal",
       enum: ["high", "medium", "normal", "low"],
     },
-    originalTaskId:{
+    originaluserId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
