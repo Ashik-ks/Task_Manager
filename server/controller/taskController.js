@@ -281,27 +281,21 @@ exports.dashboardStatistics = async function (req, res) {
 // some confusion about query istrash value
 exports.getTasks = async function (req, res) {
   try {
-    // Extract stage and isTrashed from query parameters
-    const { stage, isTrashed } = req.query;
+    const { stage, isTrashed, limit } = req.query;
+    let query = { isTrashed: isTrashed === 'true' };
 
-    // If isTrashed is undefined, it will default to false
-    let query = { isTrashed: isTrashed === 'true' }; // Ensures isTrashed is a boolean
+    if (stage) query.stage = stage;
 
-    if (stage) {
-      query.stage = stage; // Add stage filter if provided
-    }
-
-    // Fetch tasks from the database based on the query
-    let queryResult = Task.find(query)
+    let tasksQuery = Task.find(query)
       .populate({
         path: 'team',
         select: 'name title email',
       })
-      .sort({ _id: -1 }); // Sort by creation date in descending order
+      .sort({ _id: -1 });
 
-    const tasks = await queryResult;
+    if (limit) tasksQuery = tasksQuery.limit(Number(limit));  // Apply limit for last 5 tasks
 
-    // Send response with the fetched tasks
+    const tasks = await tasksQuery;
     res.status(200).json({
       status: true,
       tasks,
@@ -311,6 +305,7 @@ exports.getTasks = async function (req, res) {
     return res.status(400).json({ status: false, message: error.message });
   }
 };
+
 
 exports.getTask = async function (req, res) {
   try {

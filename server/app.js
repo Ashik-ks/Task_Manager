@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
+const axios = require('axios');
 
 const userRouter = require('./router/userRouter');
 const taskRouter = require('./router/taskRouter');
@@ -13,6 +15,7 @@ const mongoConnect = require("../server/db/connect");
 mongoConnect();
 
 // Middleware setup
+app.use(cors());  // Enable CORS for API requests
 app.use(express.static('../client'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "7mb" }));

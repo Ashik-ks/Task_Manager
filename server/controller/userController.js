@@ -179,33 +179,36 @@ exports.updateUserProfile = async function (req, res) {
   }
 };
 
-exports.markNotificationRead = async function (req,res) {
+exports.markNotificationRead = async function (req, res) {
   try {
-    const userId= req.params.id;
-    const id = req.params.nid;
+    const userId = req.params.id;
+    const notificationId = req.params.nid;
+    const isReadType = req.query.all;
+    console.log("isRead : ",isReadType)
 
-    const isReadType = req.query;
-
-    if (isReadType === "all") {
+    if (isReadType === "true") {
+      // Mark all notifications as read
       await Notification.updateMany(
         { team: userId, isRead: { $nin: [userId] } },
         { $push: { isRead: userId } },
         { new: true }
       );
     } else {
+      // Mark a single notification as read
       await Notification.findOneAndUpdate(
-        { _id: id, isRead: { $nin: [userId] } },
+        { _id: notificationId, isRead: { $nin: [userId] } },
         { $push: { isRead: userId } },
         { new: true }
       );
     }
 
-    res.status(201).json({ status: true, message: "Done" });
+    res.status(201).json({ status: true, message: "Notifications updated successfully" });
   } catch (error) {
-    console.log(error);
+    console.error("Error in marking notification as read:", error);
     return res.status(400).json({ status: false, message: error.message });
   }
-}
+};
+
 
 exports.changeUserPassword = async function (req,res) {
   try {
@@ -214,7 +217,7 @@ exports.changeUserPassword = async function (req,res) {
     const user = await User.findById(userId);
 
     if (user) {
-      user.password = req.body.password;
+      user.password = req.body.newPassword;;
 
       await user.save();
 
@@ -272,5 +275,38 @@ exports.deleteUserProfile = async function(req,res){
     return res.status(400).json({ status: false, message: error.message });
   }
 }
+
+exports.getuser = async function (req, res) {
+  try {
+    const id = req.params.id;
+
+    // If id is null or undefined, fetch all users
+    if (!id) {
+      const users = await User.find();  // Fetch all users
+      return res.status(200).json(users);
+    }
+
+    // Check if the provided id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    // Fetch user by ID
+    const user = await User.findOne({ _id: id });
+
+    // Check if user is found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send the user details in the response
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 
