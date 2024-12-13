@@ -10,6 +10,8 @@ const { success_function, error_function } = require('../utils/responsehandler')
 const { format, parse } = require('date-fns');
 const Joi = require('joi');
 
+
+// Joi validation schema for the task
 const taskValidationSchema = Joi.object({
   title: Joi.string().required(),
   team: Joi.array().items(Joi.string().regex(/^[a-fA-F0-9]{24}$/)).required(),
@@ -19,28 +21,37 @@ const taskValidationSchema = Joi.object({
   assets: Joi.array().items(Joi.string()).optional(),
 });
 
-
+// Function to create a task
 exports.createTask = async function (req, res) {
   try {
     const userId = req.params.id;
+    let team1 = req.body.team;
+    console.log("team (received): ", team1); // Debugging log, consider removing in production
+
+    // Validate user ID format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid user ID format:", userId); // Log invalid user ID
       return res.status(400).json(error_function("Invalid user ID."));
     }
 
     console.log("Received userId:", userId);
 
-    // Validate the task data
+    // Validate the task data using Joi
     const { error, value } = taskValidationSchema.validate(req.body);
     if (error) {
+      console.log("Joi validation error:", error.details[0].message); // Log Joi validation error
       return res.status(400).json(error_function(error.details[0].message));
     }
 
     const { title, team, stage, date, priority, assets } = value;
     console.log("Validated task data:", { title, team, stage, date, priority, assets });
 
-    // Verify all team members exist
+    // Verify all team members exist in the User collection
     const users = await User.find({ _id: { $in: team } });
+    console.log("Users found in the database:", users); // Log found users
+
     if (users.length !== team.length) {
+      console.log("Mismatch between team length and found users:", users.length, team.length); // Log the mismatch
       return res.status(400).json(error_function("One or more team member IDs are invalid."));
     }
 
@@ -53,14 +64,17 @@ exports.createTask = async function (req, res) {
     }
     text += ` The task priority is set to ${priority} priority. Please check and act accordingly. The task date is ${format(new Date(date), 'MMMM dd, yyyy')}. Thank you!`;
 
-    // Activity object
+    console.log("Notification text constructed:", text); // Log notification text
+
+    // Activity object for task creation
     const activity = {
       type: "assigned",
       activity: text,
       by: userId,
     };
+    console.log("Activity object:", activity); // Log the activity object
 
-    // Create task
+    // Create the task
     const task = await Task.create({
       title,
       team,
@@ -71,25 +85,25 @@ exports.createTask = async function (req, res) {
       activities: [activity],
       originaluserId: userId,
     });
+    console.log("Task created successfully:", task); // Log the created task object
 
-    console.log("Task created successfully:", task);
-
-    // Create notifications for the team
+    // Create notifications for the team members
     const notifications = team.map(memberId => ({
       team: memberId,
       text,
       task: task._id,
     }));
+    console.log("Notifications to insert:", notifications); // Log the notifications array
 
-    console.log("Notifications to insert:", notifications);
     await Notification.insertMany(notifications);
 
-    // Only update the tasks array for the user identified by userId (from params)
-    await User.findByIdAndUpdate(userId, { $push: { tasks: task._id } });
+    // Update the tasks array for the user identified by userId
+    const updatedUser = await User.findByIdAndUpdate(userId, { $push: { tasks: task._id } }, { new: true });
+    console.log("User after task update:", updatedUser); // Log the user after updating tasks
 
     res.status(200).json(success_function("Task created successfully.", { task }));
   } catch (error) {
-    console.error("Error creating task:", error); // Log the full error
+    console.error("Error creating task:", error); // Log the full error, but be cautious with sensitive data
     res.status(400).json({
       success: false,
       statuscode: 400,
@@ -97,8 +111,9 @@ exports.createTask = async function (req, res) {
       data: null,
     });
   }
-
 };
+
+
 
 exports.duplicateTask = async function (req, res) {
   try {
@@ -337,6 +352,7 @@ exports.createSubTask = async function (req, res) {
     const { title, tag, date } = req.body;
 
     const id = req.params.tid;
+    console.log("tid : ",id)
 
     const newSubTask = {
       title,

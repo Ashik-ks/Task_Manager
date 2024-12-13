@@ -7,8 +7,10 @@ import {
   MdTaskAlt,
 } from "react-icons/md";
 import { FaTasks, FaTrashAlt, FaUsers } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import { useParams } from "react-router-dom";
+
 
 const linkData = [
   {
@@ -50,14 +52,39 @@ const linkData = [
 
 const Sidebar = ({ closeSidebar }) => {
   const location = useLocation();
-
+  const navigate = useNavigate();
   const path = location.pathname.split("/")[1];
 
   const NavLink = ({ el }) => {
+    const { id,role } = useParams();
+    const handleNavigation = () => {
+      if (el.label === "Tasks") {
+        navigate(`/tasks/${id}/${role}`);
+      } else if  (el.label === "Dashboard"){
+        navigate(`/dashboard/${id}/${role}`);
+      }
+      else if  (el.label === "Completed"){
+        let stage = 'completed'
+        navigate(`/completed/${id}/${role}/${stage}`);
+      }
+      else if  (el.label === "In Progress"){
+        let stage2 = 'in progress'
+        navigate(`/inprogress/${id}/${role}/${stage2}`);
+      }
+      else if  (el.label === "To Do"){
+        let stage3 = 'todo'
+        navigate(`/todo/${id}/${role}/${stage3}`);
+      }
+      else if  (el.label === "Team"){
+        navigate(`/dashboard/${id}/${role}`);
+      }
+      
+      closeSidebar(); 
+    };
+
     return (
-      <Link
-        to={el.link}
-        onClick={closeSidebar} // Close sidebar on link click
+      <button
+        onClick={handleNavigation}
         className={clsx(
           "w-full lg:w-3/4 flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d]",
           path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : ""
@@ -65,7 +92,7 @@ const Sidebar = ({ closeSidebar }) => {
       >
         {el.icon}
         <span className="hover:text-[#2564ed]">{el.label}</span>
-      </Link>
+      </button>
     );
   };
 

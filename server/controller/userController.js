@@ -279,9 +279,10 @@ exports.deleteUserProfile = async function(req,res){
 exports.getuser = async function (req, res) {
   try {
     const id = req.params.id;
+    console.log("id : ",id)
 
     // If id is null or undefined, fetch all users
-    if (!id) {
+    if (id === 'null') {
       const users = await User.find();  // Fetch all users
       return res.status(200).json(users);
     }

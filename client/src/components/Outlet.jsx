@@ -25,7 +25,6 @@ const Outlet = () => {
   const [totals, setTotals] = useState({ completed: 0, "in progress": 0, todo: 0 });
   const { id } = useParams();
 
-  // Fetch tasks
   const fetchTasks = async () => {
     try {
       const response = await axios.get('http://localhost:3000/gettasks');
@@ -68,16 +67,18 @@ const Outlet = () => {
     }
   };
 
-  // Fetch users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/getuser/${id}`);
+      // Force id to null in the API request
+      const url = `http://localhost:3000/getuser/${null}`;
+      const response = await axios.get(url); 
       setUsers(Array.isArray(response.data) ? response.data : [response.data]);
+      console.log("response:", response.data);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
-
+  
   useEffect(() => {
     fetchTasks();
     fetchLast5Tasks();
@@ -194,7 +195,7 @@ const Outlet = () => {
 
       {/* Chart Section */}
       <div className="w-full shadow-md bg-white mb-10 rounded-lg p-5 mt-10"> {/* Added mt-10 for space */}
-        <span className="text-lg md:text-xl font-semibold mb-6 block">Task by Priority</span>
+        <span className="text-center text-lg md:text-xl font-semibold mb-6 block">Task by Priority</span>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <XAxis dataKey="name" />
@@ -235,7 +236,7 @@ const Outlet = () => {
               <tr className="text-black text-left">
                 <th className="py-3 text-sm md:text-base">Full Name</th>
                 <th className="py-3 text-sm md:text-base">Status</th>
-                <th className="py-3 text-sm md:text-base">Created At</th>
+                <th className="py-3 text-xs md:text-base">Created At</th>
               </tr>
             </thead>
             <tbody>

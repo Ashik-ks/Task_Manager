@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import MobileSidebar from "../components/MobileSidebar";
 import Tasks from "../components/Outlet2";
 
-const TaskPage = () => {
+const Todos = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isListView, setIsListView] = useState(false); // State for toggling list view
 
@@ -52,4 +52,4 @@ const TaskPage = () => {
   );
 };
 
-export default TaskPage;
+export default Todos;

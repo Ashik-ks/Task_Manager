@@ -5,7 +5,7 @@ import NotificationPanel from "./NotificationPanel";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <div className="flex justify-between items-center bg-white px-4 py-3 2xl:py-4 sticky z-10 top-0">
+    <div className="flex justify-between items-center bg-white px-4 py-3 2xl:py-4 z-10 top-0">
       <div className="flex gap-4">
         {/* Sidebar Toggle Button for Mobile */}
         <button
