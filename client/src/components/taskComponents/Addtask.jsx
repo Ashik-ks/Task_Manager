@@ -77,7 +77,6 @@ const AddTask = ({ open, setOpen }) => {
       setTeam((prevTeam) => [...prevTeam, selectedUserId]);
     }
   };
-  
 
   const handleRemoveUser = (userId) => {
     setTeam((prevTeam) => prevTeam.filter((id) => id !== userId));
@@ -88,7 +87,7 @@ const AddTask = ({ open, setOpen }) => {
   };
 
   return (
-    <ModalWrapper open={open} setOpen={setOpen}>
+    <ModalWrapper open={open} setOpen={setOpen} hideCloseButton={true}>
       <form onSubmit={handleSubmit(submitHandler)}>
         <Dialog.Title as="h2" className="text-base font-bold leading-6 text-gray-900 mb-4">
           ADD TASK

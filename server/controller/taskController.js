@@ -114,7 +114,6 @@ exports.createTask = async function (req, res) {
 };
 
 
-
 exports.duplicateTask = async function (req, res) {
   try {
     const { id } = req.params;
@@ -378,25 +377,51 @@ exports.createSubTask = async function (req, res) {
 exports.updateTask = async function (req, res) {
   try {
     const id = req.params.tid;
+    console.log("tid : ",id)
     const { title, team, stage, priority, assets, date } = req.body;
+    console.log("body : ",title,team,stage,priority,date)
 
     // Parse the date from a custom format (e.g., dd-MM-yyyy) to a JavaScript Date object
-    const parsedDate = parse(date, 'dd-MM-yyyy', new Date());
-
-    if (isNaN(parsedDate)) {
-      return res.status(400).json({ status: false, message: "Invalid date format." });
-    }
-
+    // const parsedDate = parse(date, 'dd-MM-yyyy', new Date());
+    // console.log(" parsedDate: ",parsedDate)
+    
+    // if (isNaN(parsedDate)) {
+    //   return res.status(400).json({ status: false, message: "Invalid date format." });
+    // }
+    
     // The date is now a JavaScript Date object, so we can store it directly in MongoDB
     const task = await Task.findById(id);
+    console.log("task : ",task)
 
+    let text = `Our Task  has been updated and  assigned to you`;
+    if (team.length > 1) {
+      text += ` and ${team.length - 1} others.`;
+    }
+    text += ` The task priority is set to ${priority} priority. Please check and act accordingly. The task date is ${format(new Date(date), 'MMMM dd, yyyy')}. Thank you!`;
+
+    console.log("Notification text constructed:", text);
+
+    const notifications = team.map(memberId => ({
+      team: memberId,
+      text,
+      task: task._id,
+    }));
+    console.log("Notifications to insert:", notifications);
+
+    await Notification.insertMany(notifications);
+    
+    // Update task fields if present in the request body
     task.title = title;
-    task.date = parsedDate;  // Store the JavaScript Date object directly
+    task.date = date;  // Store the JavaScript Date object directly
     task.priority = priority.toLowerCase();
-    task.assets = assets;
     task.stage = stage.toLowerCase();
     task.team = team;
-
+    
+    // Only update assets if it is provided in the request
+    if (assets) {
+      task.assets = assets;
+    }
+    
     await task.save();
 
     res.status(200).json({ status: true, message: "Task updated successfully." });
@@ -429,6 +454,7 @@ exports.trashTask = async function (req, res) {
 exports.deleteRestoreTask = async function (req, res) {
   try {
     const { actionType } = req.query;
+    console.log("actiontype : ",actionType)
 
     if (actionType === "delete") {
       // Find the task by ID

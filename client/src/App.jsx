@@ -6,6 +6,8 @@ import Tasks from './pages/Tasks';
 import Completed from './pages/Completed';
 import Inprogress from './pages/InProgress';
 import Todos from './pages/Todos';
+import Trash from './pages/trash';
+
 function App() {
 
   return (
@@ -17,6 +19,7 @@ function App() {
     <Route path="/completed/:id/:role/:status" element={<Completed />} />
     <Route path="/inprogress/:id/:role/:status" element={<Inprogress />} />
     <Route path="/todo/:id/:role/:status" element={<Todos />} />
+    <Route path="/trash/:id/:role" element={<Trash />} />
 
   </Routes>
   )

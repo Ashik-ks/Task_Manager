@@ -78,6 +78,9 @@ const Sidebar = ({ closeSidebar }) => {
       else if  (el.label === "Team"){
         navigate(`/dashboard/${id}/${role}`);
       }
+      else if  (el.label === "Trash"){
+        navigate(`/trash/${id}/${role}`);
+      }
       
       closeSidebar(); 
     };

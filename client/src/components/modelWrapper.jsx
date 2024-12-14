@@ -1,7 +1,7 @@
 import React, { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
-const ModalWrapper = ({ open, setOpen, children }) => {
+const ModalWrapper = ({ open, setOpen, children, hideCloseButton = false }) => {
   // Ref for the cancel button, used for `initialFocus`
   const cancelButtonRef = useRef(null);
 
@@ -47,16 +47,18 @@ const ModalWrapper = ({ open, setOpen, children }) => {
                   </div>
                 </div>
                 {/* Close button (optional) */}
-                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button
-                    type="button"
-                    ref={cancelButtonRef} // Assign the ref here for initial focus
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:ml-3 sm:w-auto sm:text-sm"
-                    onClick={() => setOpen(false)}
-                  >
-                    Close
-                  </button>
-                </div>
+                {!hideCloseButton && (
+                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button
+                      type="button"
+                      ref={cancelButtonRef} // Assign the ref here for initial focus
+                      className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>
