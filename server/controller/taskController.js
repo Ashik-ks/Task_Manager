@@ -9,6 +9,8 @@ const Task = require('../db/model/task');
 const { success_function, error_function } = require('../utils/responsehandler');
 const { format, parse } = require('date-fns');
 const Joi = require('joi');
+const upload = require("../multerconfig")
+
 
 
 // Joi validation schema for the task
@@ -21,41 +23,42 @@ const taskValidationSchema = Joi.object({
   assets: Joi.array().items(Joi.string()).optional(),
 });
 
-// Function to create a task
 exports.createTask = async function (req, res) {
   try {
     const userId = req.params.id;
     let team1 = req.body.team;
-    console.log("team (received): ", team1); // Debugging log, consider removing in production
+
+    console.log("Team array received:", team1); // Log the team array
+
+    // Ensure the files were uploaded
+    const uploadedFiles = req.files;
+    console.log("Files uploaded:", uploadedFiles);
+
+    // Check if files are uploaded under the 'assets[]' field
+    if (!uploadedFiles || !uploadedFiles['assets[]']) {
+      console.log("No files uploaded or incorrect field name.");
+      return res.status(400).json(error_function("No files uploaded."));
+    }
+
+    // Extract filenames from the uploaded files
+    const assetFiles = uploadedFiles['assets[]'].map(file => file.filename);
+    console.log("Asset files:", assetFiles);  // Debugging log
 
     // Validate user ID format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid user ID format:", userId); // Log invalid user ID
       return res.status(400).json(error_function("Invalid user ID."));
     }
 
-    console.log("Received userId:", userId);
-
-    // Validate the task data using Joi
-    const { error, value } = taskValidationSchema.validate(req.body);
-    if (error) {
-      console.log("Joi validation error:", error.details[0].message); // Log Joi validation error
-      return res.status(400).json(error_function(error.details[0].message));
-    }
-
-    const { title, team, stage, date, priority, assets } = value;
-    console.log("Validated task data:", { title, team, stage, date, priority, assets });
+    const { title, team, stage, date, priority } = req.body;
 
     // Verify all team members exist in the User collection
     const users = await User.find({ _id: { $in: team } });
-    console.log("Users found in the database:", users); // Log found users
+    console.log("Users found:", users);  // Debugging log
 
     if (users.length !== team.length) {
-      console.log("Mismatch between team length and found users:", users.length, team.length); // Log the mismatch
+      console.log("Mismatch between team and found users:", users.length, team.length);
       return res.status(400).json(error_function("One or more team member IDs are invalid."));
     }
-
-    console.log("Valid team members found:", users);
 
     // Construct notification text
     let text = `New task has been assigned to you`;
@@ -64,15 +67,23 @@ exports.createTask = async function (req, res) {
     }
     text += ` The task priority is set to ${priority} priority. Please check and act accordingly. The task date is ${format(new Date(date), 'MMMM dd, yyyy')}. Thank you!`;
 
-    console.log("Notification text constructed:", text); // Log notification text
-
     // Activity object for task creation
     const activity = {
       type: "assigned",
       activity: text,
       by: userId,
     };
-    console.log("Activity object:", activity); // Log the activity object
+
+    console.log("Creating task with data:", {
+      title,
+      team,
+      stage: stage.toLowerCase(),
+      date,
+      priority: priority.toLowerCase(),
+      assets: assetFiles,
+      activities: [activity],
+      originaluserId: userId
+    });
 
     // Create the task
     const task = await Task.create({
@@ -81,11 +92,12 @@ exports.createTask = async function (req, res) {
       stage: stage.toLowerCase(),
       date,
       priority: priority.toLowerCase(),
-      assets,
+      assets: assetFiles, // Store the file names in the assets field
       activities: [activity],
       originaluserId: userId,
     });
-    console.log("Task created successfully:", task); // Log the created task object
+
+    console.log("Task created:", task);  // Debugging log
 
     // Create notifications for the team members
     const notifications = team.map(memberId => ({
@@ -93,17 +105,17 @@ exports.createTask = async function (req, res) {
       text,
       task: task._id,
     }));
-    console.log("Notifications to insert:", notifications); // Log the notifications array
+
+    console.log("Notifications to insert:", notifications);  // Debugging log
 
     await Notification.insertMany(notifications);
 
     // Update the tasks array for the user identified by userId
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { tasks: task._id } }, { new: true });
-    console.log("User after task update:", updatedUser); // Log the user after updating tasks
 
     res.status(200).json(success_function("Task created successfully.", { task }));
   } catch (error) {
-    console.error("Error creating task:", error); // Log the full error, but be cautious with sensitive data
+    console.error("Error creating task:", error);
     res.status(400).json({
       success: false,
       statuscode: 400,
@@ -375,60 +387,93 @@ exports.createSubTask = async function (req, res) {
 }
 
 exports.updateTask = async function (req, res) {
-  try {
-    const id = req.params.tid;
-    console.log("tid : ",id)
-    const { title, team, stage, priority, assets, date } = req.body;
-    console.log("body : ",title,team,stage,priority,date)
-
-    // Parse the date from a custom format (e.g., dd-MM-yyyy) to a JavaScript Date object
-    // const parsedDate = parse(date, 'dd-MM-yyyy', new Date());
-    // console.log(" parsedDate: ",parsedDate)
-    
-    // if (isNaN(parsedDate)) {
-    //   return res.status(400).json({ status: false, message: "Invalid date format." });
-    // }
-    
-    // The date is now a JavaScript Date object, so we can store it directly in MongoDB
-    const task = await Task.findById(id);
-    console.log("task : ",task)
-
-    let text = `Our Task  has been updated and  assigned to you`;
-    if (team.length > 1) {
-      text += ` and ${team.length - 1} others.`;
+    try {
+      const id = req.params.tid;
+      console.log("tid : ", id);
+  
+      let { title, team, stage, priority, date } = req.body;
+      const assets = req.files ? req.files['assets[]'] : [];  // Handle assets sent via Multer (using the correct field name)
+  
+      // Parse the 'team' field if it is a stringified array
+      if (typeof team === 'string') {
+        team = JSON.parse(team);  // Convert the stringified array to a proper array
+      }
+  
+      console.log("Received body: ", { title, team, stage, priority, date });
+      console.log("Received files (assets): ", assets);
+  
+      const task = await Task.findById(id);
+      if (!task) {
+        return res.status(404).json({ status: false, message: "Task not found." });
+      }
+  
+      console.log("Existing assets in task: ", task.assets); // Log existing assets before updating
+  
+      // Ensure that team is an array
+      if (!Array.isArray(team)) {
+        return res.status(400).json({ status: false, message: "Team must be an array." });
+      }
+  
+      // Construct notification text
+      let text = `Our Task has been updated and assigned to you.`;
+      if (team.length > 1) {
+        text += ` and ${team.length - 1} others.`;
+      }
+      text += ` The task priority is set to ${priority} priority. Please check and act accordingly. The task date is ${format(new Date(date), 'MMMM dd, yyyy')}. Thank you!`;
+  
+      console.log("Notification text constructed:", text);
+  
+      // Normalize team to ensure it is an array
+      const normalizedTeam = Array.isArray(team) ? team : [team];
+      console.log("Normalized Team:", normalizedTeam);
+  
+      // Create notifications for the team
+      const notifications = normalizedTeam.map(memberId => ({
+        team: memberId,
+        text,
+        task: task._id,
+      }));
+      console.log("Notifications to insert:", notifications);
+  
+      await Notification.insertMany(notifications);
+  
+      // Initialize updateDataassets to an empty array by default
+      let updateDataassets = [];
+  
+      // Only replace old assets if new ones are uploaded
+      if (assets && assets.length > 0) {
+        // Map the uploaded files to the `assets` array with only the file paths
+        updateDataassets = assets.map(file => file.path);  // Correctly extract file paths
+        console.log("Updated assets: ", updateDataassets);  // Log updated assets
+      }
+  
+      // Prepare the update object
+      const updateData = {
+        title,
+        date: new Date(date),
+        priority: priority.toLowerCase(),
+        stage: stage.toLowerCase(),
+        team: normalizedTeam,
+        assets: updateDataassets,  // Ensure assets are set here
+      };
+      console.log("updateData : ", updateData);  // Log the update object
+  
+      // Use updateOne to replace old assets and update task fields
+      const result = await Task.updateOne(
+        { _id: id },  // Find task by ID
+        { $set: updateData }  // Set new values, including updated assets
+      );
+  
+      // Check if the update was successful
+      if (result.nModified === 0) {
+        return res.status(400).json({ status: false, message: "No changes were made." });
+      }
+  
+      res.status(200).json({ status: true, message: "Task updated successfully." });
+    } catch (error) {
+      console.log("Error updating task:", error);
+      return res.status(400).json({ status: false, message: error.message });
     }
-    text += ` The task priority is set to ${priority} priority. Please check and act accordingly. The task date is ${format(new Date(date), 'MMMM dd, yyyy')}. Thank you!`;
-
-    console.log("Notification text constructed:", text);
-
-    const notifications = team.map(memberId => ({
-      team: memberId,
-      text,
-      task: task._id,
-    }));
-    console.log("Notifications to insert:", notifications);
-
-    await Notification.insertMany(notifications);
-    
-    // Update task fields if present in the request body
-    task.title = title;
-    task.date = date;  // Store the JavaScript Date object directly
-    task.priority = priority.toLowerCase();
-    task.stage = stage.toLowerCase();
-    task.team = team;
-    
-    // Only update assets if it is provided in the request
-    if (assets) {
-      task.assets = assets;
-    }
-    
-    await task.save();
-
-    res.status(200).json({ status: true, message: "Task updated successfully." });
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ status: false, message: error.message });
-  }
 };
 
 exports.trashTask = async function (req, res) {

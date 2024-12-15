@@ -19,8 +19,7 @@ app.use(cors());  // Enable CORS for API requests
 app.use(express.static('../client'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "7mb" }));
-app.use('/uploads/Products', express.static(path.join(__dirname, 'uploads/products')));
-// Router setup
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));// Router setup
 app.use(userRouter);
 app.use(taskRouter);
 

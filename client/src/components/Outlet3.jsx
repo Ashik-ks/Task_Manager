@@ -203,17 +203,19 @@ const Outlet3 = () => {
                 <div className="w-full md:w-1/2 space-y-8">
                   <p className="text-lg font-semibold">ASSETS</p>
 
-                  <div className="w-full grid grid-cols-2 gap-4">
+                  <div className="w-full grid grid-cols-2 gap-4 bg">
                     {task.task.assets?.map((el, index) => (
-                      <img
-                        key={index}
-                        src={el}
-                        alt={task.title}
-                        className="w-full rounded h-28 md:h-36 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50"
-                      />
+                     <img
+                     key={index}
+                     src={`http://localhost:3000/${el}`} // Construct the full URL for the image
+                     alt={task.title}
+                     className="w-full rounded h-28 md:h-36 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50"
+                   />
+                   
                     ))}
                   </div>
                 </div>
+
               </div>
             </>
           ) : (
@@ -229,7 +231,7 @@ const Activities = ({ activity, taskId, setActivities }) => {
   const [selectedType, setSelectedType] = useState("Started");
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { id } = useParams(); 
+  const { id } = useParams();
 
   const act_types = [
     "Started",
@@ -278,22 +280,22 @@ const Activities = ({ activity, taskId, setActivities }) => {
       alert("Please select an activity type and provide details.");
       return;
     }
-  
+
     setIsLoading(true);
     try {
       const activityData = {
         type: selectedType.toLowerCase(),
         activity: text,
       };
-  
+
       // Post the activity
       const response = await axios.post(
         `http://localhost:3000/postTaskActivity/${id}/${taskId}`,
         activityData
       );
-      
+
       console.log("Response received:", response); // Log the full response
-  
+
       // Check if the response status is 200
       if (response.status === 200) {
         alert("Activity posted successfully!");
@@ -312,88 +314,88 @@ const Activities = ({ activity, taskId, setActivities }) => {
       setIsLoading(false);
     }
   };
-  
-  
+
+
 
   const Card = ({ item }) => (
-<div className="flex space-x-4">
-  {/* Icon Section */}
-  <div className="flex flex-col items-center flex-shrink-0">
-    <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-full">
-      {TASKTYPEICON[item?.type]}
-    </div>
-    {/* Connecting line to the next icon */}
-    <div className="w-0.5 bg-gray-300 h-8 mt-2"></div> {/* Vertical line */}
-  </div>
+    <div className="flex space-x-4">
+      {/* Icon Section */}
+      <div className="flex flex-col items-center flex-shrink-0">
+        <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-full">
+          {TASKTYPEICON[item?.type]}
+        </div>
+        {/* Connecting line to the next icon */}
+        <div className="w-0.5 bg-gray-300 h-8 mt-2"></div> {/* Vertical line */}
+      </div>
 
-  {/* Activity Content */}
-  <div className="flex flex-col gap-y-1 mb-8">
-    <p className="font-semibold">{item?.by?.name}</p>
-    <div className="text-gray-500 space-y-2">
-      <div className="flex items-center space-x-2">
-        <span className="capitalize">{item?.type}</span>
-        <span className="text-sm">{moment(item?.date).fromNow()}</span>
+      {/* Activity Content */}
+      <div className="flex flex-col gap-y-1 mb-8">
+        <p className="font-semibold">{item?.by?.name}</p>
+        <div className="text-gray-500 space-y-2">
+          <div className="flex items-center space-x-2">
+            <span className="capitalize">{item?.type}</span>
+            <span className="text-sm">{moment(item?.date).fromNow()}</span>
+          </div>
+        </div>
+        <div className="text-gray-700">{item?.activity}</div>
       </div>
     </div>
-    <div className="text-gray-700">{item?.activity}</div>
-  </div>
-</div>
 
 
   );
 
   return (
     <div className="w-full flex gap-10 2xl:gap-20 min-h-screen px-10 py-8 bg-white shadow rounded-md justify-between overflow-y-auto">
-  {/* Left Side: Activities List */}
-  <div className="w-full md:w-1/2">
-    <h4 className="text-gray-600 font-semibold text-lg mb-5">Activities</h4>
-    <div className="w-full">
-      {activity?.map((el, index) => (
-        <Card key={index} item={el} isConnected={index < activity.length - 1} />
-      ))}
-    </div>
-  </div>
-
-  {/* Right Side: Add New Activity */}
-  <div className="w-full md:w-1/3">
-    <h4 className="text-gray-600 font-semibold text-lg mb-5">Add Activity</h4>
-    <div className="w-full flex flex-wrap gap-5">
-      {/* Activity Type Selection (Radio Buttons) */}
-      {act_types.map((item) => (
-        <div key={item} className="flex gap-2 items-center">
-          <input
-            type="radio"
-            className="w-4 h-4"
-            checked={selectedType === item}
-            onChange={() => setSelectedType(item)}
-          />
-          <p>{item}</p>
+      {/* Left Side: Activities List */}
+      <div className="w-full md:w-1/2">
+        <h4 className="text-gray-600 font-semibold text-lg mb-5">Activities</h4>
+        <div className="w-full">
+          {activity?.map((el, index) => (
+            <Card key={index} item={el} isConnected={index < activity.length - 1} />
+          ))}
         </div>
-      ))}
-      
-      {/* Text Area for Description */}
-      <textarea
-        rows={5}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Type ......"
-        className="bg-white w-full mt-4 border border-gray-300 outline-none p-4 rounded-md focus:ring-2 ring-blue-500"
-      ></textarea>
+      </div>
 
-      {/* Submit Button */}
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <Button
-          type="button"
-          label="Submit"
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white rounded"
-        />
-      )}
+      {/* Right Side: Add New Activity */}
+      <div className="w-full md:w-1/3">
+        <h4 className="text-gray-600 font-semibold text-lg mb-5">Add Activity</h4>
+        <div className="w-full flex flex-wrap gap-5">
+          {/* Activity Type Selection (Radio Buttons) */}
+          {act_types.map((item) => (
+            <div key={item} className="flex gap-2 items-center">
+              <input
+                type="radio"
+                className="w-4 h-4"
+                checked={selectedType === item}
+                onChange={() => setSelectedType(item)}
+              />
+              <p>{item}</p>
+            </div>
+          ))}
+
+          {/* Text Area for Description */}
+          <textarea
+            rows={5}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type ......"
+            className="bg-white w-full mt-4 border border-gray-300 outline-none p-4 rounded-md focus:ring-2 ring-blue-500"
+          ></textarea>
+
+          {/* Submit Button */}
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <Button
+              type="button"
+              label="Submit"
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white rounded"
+            />
+          )}
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
   );
 };

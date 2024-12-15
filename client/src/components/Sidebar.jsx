@@ -75,7 +75,7 @@ const Sidebar = ({ closeSidebar }) => {
         navigate(`/todo/${id}/${role}/${stage3}`);
       }
       else if  (el.label === "Team"){
-        navigate(`/dashboard/${id}/${role}`);
+        navigate(`/users/${id}/${role}`);
       }
       else if  (el.label === "Trash"){
         navigate(`/trash/${id}/${role}`);

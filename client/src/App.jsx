@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/login'
 import Dashboard from './pages/Dashboard'
-import Users from './pages/Users'
+import Team from './pages/Team'
 import Tasks from './pages/Tasks';
 import Completed from './pages/Completed';
 import Inprogress from './pages/InProgress';
@@ -15,7 +15,7 @@ function App() {
     <Routes>
     <Route path="/" element={<Login />} />
     <Route path="/dashboard/:id/:role" element={<Dashboard />} />
-    <Route path="/users/:id/:role" element={<Users />} />
+    <Route path="/users/:id/:role" element={<Team />} />
     <Route path="/tasks/:id/:role" element={<Tasks />} />
     <Route path="/completed/:id/:role/:status" element={<Completed />} />
     <Route path="/inprogress/:id/:role/:status" element={<Inprogress />} />

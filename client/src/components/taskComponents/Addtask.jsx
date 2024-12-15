@@ -9,7 +9,7 @@ import axios from "axios";
 import SelectList from "./SelectList";
 
 const LISTS = ["todo", "in progress", "completed"];
-const PRIORITY = ["high", "medium", "normal", "low"];
+const PRIORITY = ["high", "medium", "low"];
 
 const fetchUsers = async () => {
   try {
@@ -44,24 +44,43 @@ const AddTask = ({ open, setOpen }) => {
   const submitHandler = async (data) => {
     try {
       setUploading(true);
-      const taskData = {
-        title: data.title,
-        team: team, // Use the team array with user _id
-        stage,
-        date: data.date,
-        priority,
-        assets: Array.from(assets).map((file) => file.name),
-      };
+  
+      const taskData = new FormData();
+      
+      // Ensure team is an array, even if it is passed as a single value
+      const teamArray = Array.isArray(team) ? team : [team];
+      
+      // Append form data
+      taskData.append('title', data.title);
+      teamArray.forEach((memberId) => taskData.append('team[]', memberId)); // Ensure team is added as an array
+      taskData.append('stage', stage);
+      taskData.append('date', data.date);
+      taskData.append('priority', priority);
+  
+      // Convert 'assets' to an array if it's not already
+      const assetsArray = Array.isArray(assets) ? assets : Array.from(assets);
+      
+      // Append assets as 'assets[]'
+      assetsArray.forEach((file) => {
+        taskData.append('assets[]', file);
+      });
+  
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No token found, unable to authenticate");
         return;
       }
+  
       const response = await axios.post(
         `http://localhost:3000/createtask/${id}`,
         taskData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data' // Ensure that you are sending form data
+          }
+        });
+  
       console.log("Task created successfully:", response.data);
       setUploading(false);
       setOpen(false);
@@ -70,6 +89,9 @@ const AddTask = ({ open, setOpen }) => {
       setUploading(false);
     }
   };
+  
+  
+  
 
   const handleSelectUser = (e) => {
     const selectedUserId = e.target.value;

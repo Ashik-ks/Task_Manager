@@ -74,38 +74,45 @@ const EditTaskModal = ({ task, onClose }) => {
   };
 
   // Handle form submission to update task
-  const handleSubmit = () => {
-    const updatedData = {
-      title: formData.title,
-      date: formData.date,
-      priority: formData.priority,
-      stage: formData.stage,
-      team: formData.team, // Send only selected user IDs
-      assets: formData.assets.map(file => file.name), // Send only file names
-    };
-
-    // Send updated data to the server
-    axios
-      .put(`http://localhost:3000/updateTask/${task._id}`, updatedData, {
+  const handleSubmit = async () => {
+    const updatedData = new FormData();
+  
+    updatedData.append('title', formData.title);
+    updatedData.append('date', formData.date);
+    updatedData.append('priority', formData.priority);
+    updatedData.append('stage', formData.stage);
+  
+    // Send 'team' as an array within FormData (no need to stringify the array)
+    updatedData.append('team', JSON.stringify(formData.team));
+  
+    // Append files to FormData
+    formData.assets.forEach((file) => {
+      updatedData.append('assets[]', file);
+    });
+  
+    try {
+      const response = await axios.put(`http://localhost:3000/updateTask/${task._id}`, updatedData, {
         headers: {
-          'Content-Type': 'application/json', // Content-Type set to application/json
+          'Content-Type': 'multipart/form-data',
         },
-      })
-      .then((response) => {
-        if (response.data.status) {
-          alert('Task updated successfully');
-          onClose(); // Close the modal after successful update
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating task:', error);
-        alert('Failed to update task.');
       });
+  
+      if (response.data.status) {
+        alert('Task updated successfully');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      alert('Failed to update task.');
+    }
   };
+  
+  
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-96">
+      <div className="bg-white p-6 rounded-lg w-full sm:w-96 md:w-128 lg:w-1/2 xl:w-1/3">
         <h3 className="text-xl font-semibold mb-4">Edit Task</h3>
 
         {/* Title Field */}

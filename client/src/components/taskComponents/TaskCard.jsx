@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
 import { MdAttachFile, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp }
-from "react-icons/md";
+  from "react-icons/md";
 import { BiMessageAltDetail } from "react-icons/bi";
 import { FaList } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
@@ -53,7 +53,7 @@ const TaskCard = ({ task, user, isListView }) => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State to control modal visibility
   const navigate = useNavigate();
-      const { id,role } = useParams();
+  const { id, role } = useParams();
 
   const getFirstLetter = (text) => (text ? text[0].toUpperCase() : "");
 
@@ -121,20 +121,45 @@ const TaskCard = ({ task, user, isListView }) => {
             <BsThreeDots onClick={toggleOptions} className="cursor-pointer text-xl" />
             {isOptionsOpen && (
 
-              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 transition-all duration-300 w-52" onClick={()=>navigate(`/taskdetails/${id}/${role}/${task._id}`)}>
-                <button className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2">
+              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 transition-all duration-300 w-52">
+                <button
+                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the parent onClick from firing
+                    navigate(`/taskdetails/${id}/${role}/${task._id}`); // Navigate to Task Details
+                  }}
+                >
                   <FaEye className="text-gray-600" /> Task Details
                 </button>
-                <button onClick={openEditModal} className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the parent onClick from firing
+                    openEditModal(); // Open Edit Task Modal
+                  }}
+                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+                >
                   <FaEdit className="text-gray-600" /> Edit Task
                 </button>
-                <button onClick={() => duplicateTask(task._id)} className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the parent onClick from firing
+                    duplicateTask(task._id); // Duplicate Task
+                  }}
+                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+                >
                   <FaCopy className="text-gray-600" /> Duplicate Task
                 </button>
-                <button onClick={() => trashTask(task._id)} className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the parent onClick from firing
+                    trashTask(task._id); // Trash Task
+                  }}
+                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+                >
                   <FaTrashAlt className="text-red-600" /> Trash Task
                 </button>
               </div>
+
             )}
           </div>
         </div>
