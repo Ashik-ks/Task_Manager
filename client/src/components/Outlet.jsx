@@ -20,6 +20,7 @@ import { PRIOTITYSTYELS, TASK_TYPE, BGS } from "../utils";
 
 const Outlet = () => {
   const [tasks, setTasks] = useState([]);
+  const [totalTaskCount, setTotalTaskCount] = useState(0);
   const [users, setUsers] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [totals, setTotals] = useState({ completed: 0, "in progress": 0, todo: 0 });
@@ -29,7 +30,9 @@ const Outlet = () => {
     try {
       const response = await axios.get('http://localhost:3000/gettasks');
       const taskData = response.data.tasks;
+      console.log("all tasks : ",taskData)
       setTasks(taskData);
+      setTotalTaskCount(taskData.length)
 
       // Grouping tasks by priority
       const priorityCounts = taskData.reduce((acc, task) => {
@@ -71,14 +74,14 @@ const Outlet = () => {
     try {
       // Force id to null in the API request
       const url = `http://localhost:3000/getuser/${null}`;
-      const response = await axios.get(url); 
+      const response = await axios.get(url);
       setUsers(Array.isArray(response.data) ? response.data : [response.data]);
       console.log("response:", response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchTasks();
     fetchLast5Tasks();
@@ -89,7 +92,7 @@ const Outlet = () => {
     {
       _id: "1",
       label: "TOTAL TASK",
-      total: tasks.length || 0,
+      total: totalTaskCount || 0,
       icon: <FaNewspaper />,
       bg: "bg-[#1d4ed8]",
     },
@@ -145,9 +148,18 @@ const Outlet = () => {
           {task.team.map((m, index) => (
             <div
               key={index}
-              className={clsx("w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1", BGS[index % BGS.length])}
+              className={clsx(
+                "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
+                BGS[index % BGS.length]
+              )}
             >
-              <span>{m.name?.[0]}</span> {/* Initials */}
+              {/* Generate initials based on first letters of each name part */}
+              <span>
+                {m.name
+                  ?.split(" ") // Split name into parts
+                  .map((part) => part[0]?.toUpperCase()) // Take the first letter of each part
+                  .join("")} {/* Join the initials */}
+              </span>
             </div>
           ))}
         </div>
@@ -163,34 +175,34 @@ const Outlet = () => {
   return (
     <div className="container mx-auto p-4">
       {/* Statistics Section */}
-<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-  {stats.map((stat) => (
-    <div
-      key={stat._id}
-      className="bg-white text-black rounded-lg p-5 flex items-center justify-between w-full shadow-md"
-    >
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-semibold text-gray-800">{stat.label}</p>
-        <p className="text-2xl text-gray-900">{stat.total}</p>
-      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <div
+            key={stat._id}
+            className="bg-white text-black rounded-lg p-5 flex items-center justify-between w-full shadow-md"
+          >
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold text-gray-800">{stat.label}</p>
+              <p className="text-2xl text-gray-900">{stat.total}</p>
+            </div>
 
-      <div
-        className={clsx(
-          "w-12 h-12 rounded-full flex items-center justify-center text-white",
-          {
-            "bg-blue-500": stat.bg === "bg-[#1d4ed8]", // Blue for Total Task
-            "bg-green-500": stat.bg === "bg-[#0f766e]", // Green for Completed Task
-            "bg-orange-500": stat.bg === "bg-[#f59e0b]", // Orange for In Progress
-            "bg-red-500": stat.bg === "bg-[#be185d]" // Red for Todo
-          }
-        )}
-      >
-        {/* Icon with white color */}
-        {stat.icon}
+            <div
+              className={clsx(
+                "w-12 h-12 rounded-full flex items-center justify-center text-white",
+                {
+                  "bg-blue-500": stat.bg === "bg-[#1d4ed8]", // Blue for Total Task
+                  "bg-green-500": stat.bg === "bg-[#0f766e]", // Green for Completed Task
+                  "bg-orange-500": stat.bg === "bg-[#f59e0b]", // Orange for In Progress
+                  "bg-red-500": stat.bg === "bg-[#be185d]" // Red for Todo
+                }
+              )}
+            >
+              {/* Icon with white color */}
+              {stat.icon}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
 
 
       {/* Chart Section */}

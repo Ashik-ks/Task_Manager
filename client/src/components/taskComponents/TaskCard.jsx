@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
-import { MdAttachFile, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp }
-  from "react-icons/md";
+import { MdAttachFile, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp } from "react-icons/md";
 import { BiMessageAltDetail } from "react-icons/bi";
 import { FaList } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
@@ -10,7 +9,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { FaEdit, FaTrashAlt, FaCopy, FaEye } from "react-icons/fa";
 import AddSubTask from "./AddSubTask";
 import axios from "axios";
-import EditTaskModal from "../Edittask"; // Import the modal
+import EditTaskModal from "../Edittask";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -36,26 +35,24 @@ const backgroundColors = [
   "bg-gray-500",
 ];
 
-const fetchUsers = async () => {
-  try {
-    const url = `http://localhost:3000/getuser/${null}`;
-    const response = await axios.get(url);
-    return Array.isArray(response.data) ? response.data : [response.data];
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
-  }
-};
-
 const TaskCard = ({ task, user, isListView }) => {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State to control modal visibility
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
   const { id, role } = useParams();
 
-  const getFirstLetter = (text) => (text ? text[0].toUpperCase() : "");
+  const getFirstLetter = (text) => {
+    if (text) {
+      const words = text.split(" ");
+      return words.slice(0, 2)
+        .map((word) => word[0]?.toUpperCase())
+        .join("");
+    }
+    return "";
+  };
+  
 
   const completedSubTasks = task.subTasks.filter((subTask) => subTask.completed).length;
 
@@ -92,11 +89,11 @@ const TaskCard = ({ task, user, isListView }) => {
   };
 
   const openEditModal = () => {
-    setIsEditModalOpen(true); // Open the edit task modal
+    setIsEditModalOpen(true);
   };
 
   const closeEditModal = () => {
-    setIsEditModalOpen(false); // Close the modal
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -120,21 +117,20 @@ const TaskCard = ({ task, user, isListView }) => {
           <div className="relative">
             <BsThreeDots onClick={toggleOptions} className="cursor-pointer text-xl" />
             {isOptionsOpen && (
-
               <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 transition-all duration-300 w-52">
                 <button
                   className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the parent onClick from firing
-                    navigate(`/taskdetails/${id}/${role}/${task._id}`); // Navigate to Task Details
+                    e.stopPropagation();
+                    navigate(`/taskdetails/${id}/${role}/${task._id}`);
                   }}
                 >
                   <FaEye className="text-gray-600" /> Task Details
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the parent onClick from firing
-                    openEditModal(); // Open Edit Task Modal
+                    e.stopPropagation();
+                    openEditModal();
                   }}
                   className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
                 >
@@ -142,8 +138,8 @@ const TaskCard = ({ task, user, isListView }) => {
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the parent onClick from firing
-                    duplicateTask(task._id); // Duplicate Task
+                    e.stopPropagation();
+                    duplicateTask(task._id);
                   }}
                   className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
                 >
@@ -151,15 +147,14 @@ const TaskCard = ({ task, user, isListView }) => {
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the parent onClick from firing
-                    trashTask(task._id); // Trash Task
+                    e.stopPropagation();
+                    trashTask(task._id);
                   }}
                   className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
                 >
                   <FaTrashAlt className="text-red-600" /> Trash Task
                 </button>
               </div>
-
             )}
           </div>
         </div>
@@ -193,7 +188,14 @@ const TaskCard = ({ task, user, isListView }) => {
           </div>
           <div className="flex ms-20 flex-row-reverse">
             {task?.team?.map((m, index) => (
-              <div key={index} className={clsx("w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1", backgroundColors[index % backgroundColors.length])}>
+              <div
+                key={index}
+                onClick={() => handleUserClick(m)}
+                className={clsx(
+                  "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1 cursor-pointer",
+                  backgroundColors[index % backgroundColors.length]
+                )}
+              >
                 <span>{getFirstLetter(m.name)}</span>
               </div>
             ))}
@@ -215,7 +217,10 @@ const TaskCard = ({ task, user, isListView }) => {
 
         {/* Add Subtask Button */}
         <div className="w-full mt-2">
-          <button onClick={() => setOpen(true)} className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold hover:text-gray-700">
+          <button
+            onClick={() => setOpen(true)}
+            className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold hover:text-gray-700"
+          >
             <IoMdAdd className="text-lg" />
             <span>ADD SUBTASK</span>
           </button>
@@ -232,13 +237,16 @@ const TaskCard = ({ task, user, isListView }) => {
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg w-80">
-            <h3 className="font-semibold text-xl">User Info</h3>
-            <div className="mt-4">
+            <h3 className="font-semibold text-xl mb-4">Team Member Info</h3>
+            <div>
               <p><strong>Name:</strong> {selectedUser.name}</p>
-              <p><strong>Email:</strong> {selectedUser.email}</p>
+              <p><strong>Role:</strong> {selectedUser.email}</p>
               <p><strong>Title:</strong> {selectedUser.title}</p>
             </div>
-            <button onClick={() => setSelectedUser(null)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
               Close
             </button>
           </div>

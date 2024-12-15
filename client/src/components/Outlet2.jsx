@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaList } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import { MdGridView } from "react-icons/md";
-import { useParams } from "react-router-dom";
 import Loading from "./taskComponents/Loader";
 import Title from "./taskComponents/Title";
 import Tabs from "./taskComponents/Tabs";
@@ -27,7 +26,7 @@ const TABS = [
 ];
 
 const Tasks = ({ isListView, setIsListView }) => {
-  const { status } = useParams(); // Get status from URL params (e.g., todo, in-progress, completed)
+  const { status, role,id } = useParams(); // Get status and role from URL params (e.g., todo, in-progress, completed, user, admin)
   const [selected, setSelected] = useState(0); // Tab selection (Board or List View)
   const [open, setOpen] = useState(false); // Modal open state
   const [loading, setLoading] = useState(true); // Loading state
@@ -38,7 +37,16 @@ const Tasks = ({ isListView, setIsListView }) => {
     try {
       const response = await axios.get("http://localhost:3000/gettasks");
       const taskData = response.data.tasks;
-      setTasks(taskData); // Store fetched tasks in state
+
+      // If role is "user", filter tasks where the user is in the task's team
+      if (role === "User") {
+        const filteredTasks = taskData.filter((task) =>
+          task.team.some((member) => member._id === id)
+        );
+        setTasks(filteredTasks); // Store filtered tasks in state
+      } else {
+        setTasks(taskData); // If role is "admin", show all tasks
+      }
       setLoading(false); // Stop loading after data fetch
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -46,10 +54,10 @@ const Tasks = ({ isListView, setIsListView }) => {
     }
   };
 
-  // Fetch tasks when the component mounts or when `status` changes
+  // Fetch tasks when the component mounts or when `status` or `role` changes
   useEffect(() => {
     fetchTasks();
-  }, [status]); // Fetch tasks when URL status changes
+  }, [status, role]); // Fetch tasks when URL status or role changes
 
   // Handle tab selection (Board View vs List View)
   const handleTabChange = (index) => {
@@ -102,7 +110,6 @@ const Tasks = ({ isListView, setIsListView }) => {
 
       {/* Tabs (Board View or List View) */}
       <Tabs tabs={TABS} setSelected={handleTabChange}>
-
         {/* Filter buttons - only show these if no status is in the URL */}
         {!status && (
           <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">

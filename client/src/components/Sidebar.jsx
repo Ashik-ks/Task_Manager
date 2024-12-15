@@ -7,9 +7,8 @@ import {
   MdTaskAlt,
 } from "react-icons/md";
 import { FaTasks, FaTrashAlt, FaUsers } from "react-icons/fa";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
-
 
 const linkData = [
   {
@@ -47,41 +46,55 @@ const linkData = [
     link: "trashed",
     icon: <FaTrashAlt />,
   },
+  {
+    label: "My Work",
+    link: "my-work",
+    icon: <FaTasks />,
+  },
 ];
 
-const Sidebar = ({ closeSidebar }) => {
+const Sidebar = ({ closeSidebar, isLoggedIn }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname.split("/")[1];
+  const { id, role } = useParams();
+
+  // Adjust links based on login status
+  const filteredLinks =
+    role === "Admin"
+      ? linkData.filter((link) => link.label !== "My Work")
+      : isLoggedIn
+      ? linkData.filter(
+          (link) => link.label !== "Team" && link.label !== "Trash"
+        )
+      : linkData.filter(
+          (link) => link.label !== "Team" && link.label !== "Trash"
+        );
 
   const NavLink = ({ el }) => {
-    const { id,role } = useParams();
     const handleNavigation = () => {
       if (el.label === "Tasks") {
         navigate(`/tasks/${id}/${role}`);
-      } else if  (el.label === "Dashboard"){
+      } else if (el.label === "Dashboard") {
         navigate(`/dashboard/${id}/${role}`);
-      }
-      else if  (el.label === "Completed"){
-        let stage = 'completed'
+      } else if (el.label === "Completed") {
+        let stage = "completed";
         navigate(`/completed/${id}/${role}/${stage}`);
-      }
-      else if  (el.label === "In Progress"){
-        let stage2 = 'in progress'
+      } else if (el.label === "In Progress") {
+        let stage2 = "in progress";
         navigate(`/inprogress/${id}/${role}/${stage2}`);
-      }
-      else if  (el.label === "To Do"){
-        let stage3 = 'todo'
+      } else if (el.label === "To Do") {
+        let stage3 = "todo";
         navigate(`/todo/${id}/${role}/${stage3}`);
-      }
-      else if  (el.label === "Team"){
+      } else if (el.label === "Team") {
         navigate(`/users/${id}/${role}`);
-      }
-      else if  (el.label === "Trash"){
+      } else if (el.label === "Trash") {
         navigate(`/trash/${id}/${role}`);
+      } else if (el.label === "My Work") {
+        navigate(`/my-work/${id}/${role}`);
       }
-      
-      closeSidebar(); 
+
+      closeSidebar();
     };
 
     return (
@@ -108,7 +121,7 @@ const Sidebar = ({ closeSidebar }) => {
       </h1>
 
       <div className="flex-1 flex flex-col gap-y-5 py-8">
-        {linkData.map((link) => (
+        {filteredLinks.map((link) => (
           <NavLink el={link} key={link.label} />
         ))}
       </div>

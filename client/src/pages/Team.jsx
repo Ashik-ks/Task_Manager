@@ -9,13 +9,15 @@ import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import clsx from "clsx";
 import { useParams } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
+import Loading from "../../src/components/taskComponents/Loader";
 
 const Team = () => {
   const [users, setUsers] = useState([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [open, setOpen] = useState(false);
-  const { id } = useParams();
+  const { id, role } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,8 +26,15 @@ const Team = () => {
     role: "",
     title: "",
   });
+  const [loading, setLoading] = useState(false); // Loading state for adding a user
 
-  let token = localStorage.getItem(id)
+  useEffect(() => {
+    if (role === "User") {
+      navigate(`/dashboard/${id}/${role}`);
+    }
+  }, [role, navigate]);
+
+  let token = localStorage.getItem(id);
 
   // Fetch users from the API
   const fetchUsers = async () => {
@@ -57,13 +66,14 @@ const Team = () => {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading when adding a user
     try {
       const response = await axios.post(
         "http://localhost:3000/register",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -76,11 +86,12 @@ const Team = () => {
         role: "",
         title: "",
       });
-  
-      setOpen(false); 
-      fetchUsers(); 
+      setOpen(false);
+      fetchUsers();
     } catch (error) {
       console.error("Error adding user:", error);
+    } finally {
+      setLoading(false); // Stop loading after the response
     }
   };
 
@@ -88,10 +99,10 @@ const Team = () => {
     try {
       const response = await axios.put(
         `http://localhost:3000/activateUserProfile/${userId}`,
-        {}, 
+        {},
         {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -101,7 +112,7 @@ const Team = () => {
       console.error("Error toggling user status:", error);
     }
   };
-  
+
   const TableHeader = () => (
     <thead className="border-b border-gray-300">
       <tr className="text-black text-left">
@@ -195,7 +206,7 @@ const Team = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-1/3">
             <h2 className="text-xl font-semibold mb-4">Add New User</h2>
-            <form onSubmit={handleAddUser}>
+            <form onSubmit={handleAddUser} className="pb-4">
               <div className="mb-4">
                 <label className="block mb-1 text-sm font-medium">Name</label>
                 <input
@@ -261,10 +272,11 @@ const Team = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
-                  Add User
+                  {loading ? "Adding..." : "Add User"} {/* Change button text to "Adding..." when loading */}
                 </button>
               </div>
             </form>
+            {loading && <Loading />} {/* Show loader when loading */}
           </div>
         </div>
       )}
