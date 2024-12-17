@@ -21,6 +21,8 @@ router.get('/gettask/:tid',setAccessControl("*"),taskController.getTask)
 router.put('/createSubTask/:tid',setAccessControl("*"),taskController.createSubTask);
 router.put('/updateTask/:tid',setAccessControl("*"),upload,taskController.updateTask);
 router.put('/trashTask/:tid',setAccessControl("*"),taskController.trashTask);
+router.put('/taskstageupdate/:tid/:stage',setAccessControl("*"),taskController.taskStageUpdate);
+
 
 router.delete('/deleteRestoreTask/:tid',taskController.deleteRestoreTask)
 

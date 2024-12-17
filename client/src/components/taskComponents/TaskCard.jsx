@@ -117,45 +117,55 @@ const TaskCard = ({ task, user, isListView }) => {
           <div className="relative">
             <BsThreeDots onClick={toggleOptions} className="cursor-pointer text-xl" />
             {isOptionsOpen && (
-              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 transition-all duration-300 w-52">
-                <button
-                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/taskdetails/${id}/${role}/${task._id}`);
-                  }}
-                >
-                  <FaEye className="text-gray-600" /> Task Details
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openEditModal();
-                  }}
-                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
-                >
-                  <FaEdit className="text-gray-600" /> Edit Task
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateTask(task._id);
-                  }}
-                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
-                >
-                  <FaCopy className="text-gray-600" /> Duplicate Task
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    trashTask(task._id);
-                  }}
-                  className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
-                >
-                  <FaTrashAlt className="text-red-600" /> Trash Task
-                </button>
-              </div>
-            )}
+  <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 transition-all duration-300 w-52">
+    {/* Always show the Task Details button */}
+    <button
+      className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+      onClick={(e) => {
+        e.stopPropagation();
+        navigate(`/taskdetails/${id}/${role}/${task._id}`);
+      }}
+    >
+      <FaEye className="text-gray-600" /> Task Details
+    </button>
+
+    {/* Show Duplicate Task button for all roles */}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        duplicateTask(task._id);
+      }}
+      className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+    >
+      <FaCopy className="text-gray-600" /> Duplicate Task
+    </button>
+
+    {/* Show Edit Task and Trash Task buttons only for Admin */}
+    {role === "Admin" && (
+      <>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            openEditModal();
+          }}
+          className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+        >
+          <FaEdit className="text-gray-600" /> Edit Task
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            trashTask(task._id);
+          }}
+          className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 p-2"
+        >
+          <FaTrashAlt className="text-red-600" /> Trash Task
+        </button>
+      </>
+    )}
+  </div>
+)}
+
           </div>
         </div>
 

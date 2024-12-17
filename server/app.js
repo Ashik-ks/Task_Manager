@@ -9,6 +9,7 @@ const axios = require('axios');
 
 const userRouter = require('./router/userRouter');
 const taskRouter = require('./router/taskRouter');
+const personalTaskRouter = require('./router/personalTaskRouter')
 
 
 const mongoConnect = require("../server/db/connect");
@@ -22,6 +23,7 @@ app.use(express.json({ limit: "7mb" }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));// Router setup
 app.use(userRouter);
 app.use(taskRouter);
+app.use(personalTaskRouter);
 
 
 // Centralized error handling middleware

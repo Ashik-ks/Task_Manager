@@ -586,6 +586,39 @@ exports.deleteRestoreTask = async function (req, res) {
   }
 };
 
+exports.taskStageUpdate = async function (req, res) {
+  try {
+    const id = req.params.tid;          
+    const { stage } = req.params;
+
+    if (!["todo", "in progress", "completed"].includes(stage)) {
+      return res.status(400).json({ message: "Invalid stage value" });
+    }
+
+    const task = await Task.findOne({ _id: id });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { stage: stage }, 
+      { new: true }       
+    );
+
+    res.status(200).json({
+      message: "Task stage updated successfully",
+      task: updatedTask,
+    });
+  } catch (error) {
+    console.error("Error updating task stage:", error);
+    res.status(500).json({ message: "An error occurred while updating the task stage" });
+  }
+};
+
+
+
+
 
 
 

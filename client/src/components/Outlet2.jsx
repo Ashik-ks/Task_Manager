@@ -26,12 +26,12 @@ const TABS = [
 ];
 
 const Tasks = ({ isListView, setIsListView }) => {
-  const { status, role,id } = useParams(); // Get status and role from URL params (e.g., todo, in-progress, completed, user, admin)
-  const [selected, setSelected] = useState(0); // Tab selection (Board or List View)
-  const [open, setOpen] = useState(false); // Modal open state
-  const [loading, setLoading] = useState(true); // Loading state
-  const [tasks, setTasks] = useState([]); // Store fetched tasks
-  const [filterStage, setFilterStage] = useState(status || "all"); // Default filter stage is "all" or URL `status`
+  const { status, role, id } = useParams(); // 
+  const [selected, setSelected] = useState(0); 
+  const [open, setOpen] = useState(false); 
+  const [loading, setLoading] = useState(true); 
+  const [tasks, setTasks] = useState([]); 
+  const [filterStage, setFilterStage] = useState(status || "all"); 
 
   const fetchTasks = async () => {
     try {
@@ -97,8 +97,8 @@ const Tasks = ({ isListView, setIsListView }) => {
       <div className="flex items-center justify-between mb-4 ">
         <Title title={getTitle()} /> {/* Dynamically set the title */}
 
-        {/* Show create task button only if no status is selected */}
-        {!status && (
+        {/* Show create task button only if no status is selected and role is Admin */}
+        {!status && role === "Admin" && (
           <Button
             onClick={() => setOpen(true)}
             label="Create Task"
@@ -117,7 +117,7 @@ const Tasks = ({ isListView, setIsListView }) => {
               <TaskTitle
                 key={stage}
                 label={TASK_TYPE[stage]} // Display the task stage label (e.g., To Do, In Progress, Completed)
-                className={`bg-${stage === "todo" ? "blue" : stage === "in-progress" ? "red" :  "green"}-600`} // Different background for each stage
+                className={`bg-${stage === "todo" ? "blue" : stage === "in-progress" ? "red" : "green"}-600`} // Different background for each stage
                 onClick={() => handleFilterChange(stage)} // Use the handler from the parent for filtering
               />
             ))}

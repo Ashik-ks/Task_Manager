@@ -69,11 +69,7 @@ exports.registerUser = async function (req, res) {
 exports.loginUser = async function (req, res) {
   try {
     const { email, password } = req.body;
-    console.log("email, pass:", email, password);
-
     const user = await User.findOne({ email });
-    console.log("user:", user);
-
     if (!user) {
       return res.status(401).json({
         status: false,
@@ -81,14 +77,10 @@ exports.loginUser = async function (req, res) {
       });
     }
 
-    console.log('User found, calling matchPassword');
-    console.log(user instanceof User);  // Should log true if it's an instance of User
-
     const isMatch = await user.matchPassword(password);
-    console.log("ismatch:", isMatch);
-
     if (isMatch) {
       const token = jwt.sign({ user_id: user._id }, process.env.PRIVATE_KEY, { expiresIn: "10d" });
+      console.log("token  ",token)
       res.status(200).json({
         status: true,
         message: "Login successful",

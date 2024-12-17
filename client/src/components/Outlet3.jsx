@@ -17,7 +17,8 @@ import Tabs from "./taskComponents/Tabs";
 import { PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import Loading from "../components/taskComponents/Loader";
 import Button from "./Button";
-import axios from "axios"; // Import axios for fetching users
+import axios from "axios"; 
+import TaskStageSelector from "./taskstageselector";
 
 const Outlet3 = () => {
   const { tid } = useParams(); // Get task ID from URL params
@@ -125,12 +126,12 @@ const Outlet3 = () => {
                       <span className="text-black uppercase">{task.task.stage}</span>
                     </div>
                   </div>
-
+                  <TaskStageSelector/>
                   <p className="text-gray-500">
                     Created At: {new Date(task.task.date).toDateString()}
                   </p>
 
-                  <div className="flex items-center gap-8 p-4 border-y border-gray-200">
+                  <div className="flex items-center gap-8 py-2 border-y border-gray-200">
                     <div className="space-x-2">
                       <span className="font-semibold">Assets :</span>
                       <span>{task.task.assets?.length}</span>
@@ -143,7 +144,6 @@ const Outlet3 = () => {
                       <span>{task.task.subTasks?.length}</span>
                     </div>
                   </div>
-
                   <div className="space-y-4 py-6">
                     <p className="text-gray-600 font-semibold text-sm">TASK TEAM</p>
                     <div className="space-y-3">
@@ -205,13 +205,13 @@ const Outlet3 = () => {
 
                   <div className="w-full grid grid-cols-2 gap-4 bg">
                     {task.task.assets?.map((el, index) => (
-                     <img
-                     key={index}
-                     src={`http://localhost:3000/${el}`} // Construct the full URL for the image
-                     alt={task.title}
-                     className="w-full rounded h-28 md:h-36 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50"
-                   />
-                   
+                      <img
+                        key={index}
+                        src={`http://localhost:3000/${el}`} // Construct the full URL for the image
+                        alt={task.title}
+                        className="w-full rounded h-28 md:h-36 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50"
+                      />
+
                     ))}
                   </div>
                 </div>

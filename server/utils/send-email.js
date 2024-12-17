@@ -1,5 +1,5 @@
 "use strict";
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -21,7 +21,7 @@ exports.sendEmail = async function (emails, subject, content) {
 
       // send mail with defined transport object
       let info = await transporter.sendMail({
-        from: '"UMS" <support@ums.ru>', // sender address
+        from: '"Taskmanager" <support@TasMe.ru>', // sender address
         to: emails, // list of receivers
         subject: subject, // Subject line
         html: content, // html body
