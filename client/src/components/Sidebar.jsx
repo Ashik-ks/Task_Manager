@@ -91,7 +91,7 @@ const Sidebar = ({ closeSidebar, isLoggedIn }) => {
       } else if (el.label === "Trash") {
         navigate(`/trash/${id}/${role}`);
       } else if (el.label === "My Work") {
-        navigate(`/my-work/${id}/${role}`);
+        navigate(`/mywork/${id}/${role}`);
       }
 
       closeSidebar();

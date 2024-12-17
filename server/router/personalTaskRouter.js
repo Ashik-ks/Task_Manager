@@ -10,8 +10,8 @@ function setAccessControl(access_types) {
     }
 }
 
-router.get('/getAllArchivePersonaltask/:id', setAccessControl("2"),personalTaskController.getArchivedPersonalTasks);
 router.get('/getAllPersonaltask/:id', setAccessControl("2"),personalTaskController.getAllPersonalTasks);
+router.get('/getAllArchivePersonaltask/:id', setAccessControl("2"),personalTaskController.getArchivedPersonalTasks);
 
 router.post('/createPersonaltask/:id', setAccessControl("2"),personalTaskController.addPersonalTask);
 
