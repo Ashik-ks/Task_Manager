@@ -114,7 +114,7 @@ const UserAvatar = () => {
         <div>
           <Menu.Button
             style={{ width: '35px', height: '35px' }}
-            className="flex items-center justify-center rounded-full bg-blue-600"
+  className="mb-1 flex items-center justify-center rounded-full bg-red-500 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14"
           >
             <span className="text-white font-semibold">
               {getInitials(user?.name)}

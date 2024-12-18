@@ -94,30 +94,31 @@ const Outlet = () => {
       label: "TOTAL TASK",
       total: totalTaskCount || 0,
       icon: <FaNewspaper />,
-      bg: "bg-[#1d4ed8]",
+      bg: "bg-[#1d4ed8]", // Blue
     },
     {
       _id: "2",
       label: "COMPLETED TASK",
       total: totals["completed"] || 0,
       icon: <MdAdminPanelSettings />,
-      bg: "bg-[#0f766e]",
+      bg: "bg-[#10b981]", // Green
     },
     {
       _id: "3",
       label: "TASK IN PROGRESS",
       total: totals["in progress"] || 0,
       icon: <MdEdit />,
-      bg: "bg-[#f59e0b]",
+      bg: "bg-[#f59e0b]", // Yellow
     },
     {
       _id: "4",
       label: "TODOS",
       total: totals["todo"] || 0,
       icon: <FaArrowsToDot />,
-      bg: "bg-[#be185d]",
+      bg: "bg-[#6b7280]", // Grey
     }
   ];
+  
 
   // Icons for priorities
   const ICONS = {
@@ -191,9 +192,9 @@ const Outlet = () => {
                 "w-12 h-12 rounded-full flex items-center justify-center text-white",
                 {
                   "bg-blue-500": stat.bg === "bg-[#1d4ed8]", // Blue for Total Task
-                  "bg-green-500": stat.bg === "bg-[#0f766e]", // Green for Completed Task
+                  "bg-green-500": stat.bg === "bg-[#10b981]", // Green for Completed Task
                   "bg-orange-500": stat.bg === "bg-[#f59e0b]", // Orange for In Progress
-                  "bg-red-500": stat.bg === "bg-[#be185d]" // Red for Todo
+                  "bg-gray-400": stat.bg === "bg-[#6b7280]" // Red for Todo
                 }
               )}
             >
@@ -215,7 +216,7 @@ const Outlet = () => {
             <Tooltip />
             <Legend />
             <CartesianGrid strokeDasharray="3 3" />
-            <Bar dataKey="total" fill="#8884d8" />
+            <Bar dataKey="total" fill="#ee7e7e" />
           </BarChart>
         </ResponsiveContainer>
       </div>

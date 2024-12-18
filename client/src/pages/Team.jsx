@@ -129,7 +129,7 @@ const Team = () => {
     <tr className="border-b border-gray-200 text-gray-600 hover:bg-gray-400/10">
       <td className="p-2">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-blue-700">
+          <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-red-500">
             <span className="text-xs md:text-sm text-center">
               {getInitials(user.name)}
             </span>
@@ -180,7 +180,7 @@ const Team = () => {
               <Button
                 label="Add New User"
                 icon={<IoMdAdd className="text-lg" />}
-                className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md 2xl:py-2.5"
+                className="flex flex-row-reverse gap-1 items-center bg-red-500 text-white rounded-md 2xl:py-2.5"
                 onClick={() => setOpen(true)}
               />
             </div>
@@ -270,7 +270,7 @@ const Team = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                  className="px-4 py-2 bg-red-500 text-white rounded"
                 >
                   {loading ? "Adding..." : "Add User"} {/* Change button text to "Adding..." when loading */}
                 </button>

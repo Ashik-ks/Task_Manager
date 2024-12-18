@@ -125,3 +125,28 @@
     box-shadow: 0 0 0 0 rgba(178, 212, 252, 0.7);
   }
 }
+.highlight {
+  background-color: #ffcccb !important; /* Light red for due dates */
+  color: white !important;
+}
+
+.task-details {
+  transition: all 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    padding: 0 1rem;
+  }
+
+  .responsive-calendar {
+    font-size: 0.9rem;
+  }
+
+  .task-details {
+    font-size: 0.85rem;
+  }
+}
+
+
+

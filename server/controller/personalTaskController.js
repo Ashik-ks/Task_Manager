@@ -252,17 +252,17 @@ exports.setReminder = async function (req, res) {
     );
 
     // Schedule email reminder using node-schedule with reminder date and time
-    //   schedule.scheduleJob(reminderDate, async () => {
-    //     console.log(`Sending email reminder for task: ${updatedTask.title} to ${user.email}`);
+      // schedule.scheduleJob(reminderDate, async () => {
+      //   console.log(`Sending email reminder for task: ${updatedTask.title} to ${user.email}`);
 
-    //     try {
-    //       // Send the reminder email at the scheduled time
-    //       await sendEmail(user.email, "Task Reminder", email_template);
-    //       console.log('Email sent successfully');
-    //     } catch (emailError) {
-    //       console.error('Error sending email:', emailError);
-    //     }
-    //   });
+      //   try {
+      //     // Send the reminder email at the scheduled time
+      //     await sendEmail(user.email, "Task Reminder", email_template);
+      //     console.log('Email sent successfully');
+      //   } catch (emailError) {
+      //     console.error('Error sending email:', emailError);
+      //   }
+      // });
 
     res.status(200).json({
       message: 'Reminder set successfully',

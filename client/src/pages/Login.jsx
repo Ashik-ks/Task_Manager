@@ -80,8 +80,8 @@ const Login = () => {
             <span className='flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-gray-300 text-gray-600'>
               Manage all your tasks in one place!
             </span>
-            <p className='flex flex-col gap-0 md:gap-4 text-4xl md:text-6xl 2xl:text-7xl font-black text-center text-blue-700'>
-              <span>Cloud-Based</span>
+            <p className='flex flex-col gap-0 md:gap-4 text-4xl md:text-6xl 2xl:text-7xl font-black text-center text-red-500'>
+              <span>Online-Based</span>
               <span>Task Manager</span>
             </p>
           </div>
@@ -94,7 +94,7 @@ const Login = () => {
             className='form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white px-10 pt-14 pb-14'
           >
             <div>
-              <p className='text-blue-600 text-3xl font-bold text-center'>
+              <p className='text-red-500 text-3xl font-bold text-center'>
                 Welcome back!
               </p>
               <p className='text-center text-base text-gray-700'>
@@ -126,14 +126,14 @@ const Login = () => {
                 error={errors.password ? errors.password.message : ''}
               />
 
-              <span className='text-sm text-gray-500 hover:text-blue-600 hover:underline cursor-pointer'>
+              <span className='text-sm text-gray-500 hover:text-red-600 hover:underline cursor-pointer'>
                 Forget Password?
               </span>
 
               <Button
                 type='submit'
                 label='Submit'
-                className='w-full h-10 bg-blue-700 text-white rounded-full'
+                className='w-full h-10 bg-red-500 text-white rounded-full'
               />
             </div>
           </form>

@@ -103,7 +103,7 @@ const Tasks = ({ isListView, setIsListView }) => {
             onClick={() => setOpen(true)}
             label="Create Task"
             icon={<IoMdAdd className="text-lg" />}
-            className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
+            className="flex flex-row-reverse gap-1 items-center bg-red-500 text-white rounded-md py-2 2xl:py-2.5"
           />
         )}
       </div>
@@ -112,21 +112,22 @@ const Tasks = ({ isListView, setIsListView }) => {
       <Tabs tabs={TABS} setSelected={handleTabChange}>
         {/* Filter buttons - only show these if no status is in the URL */}
         {!status && (
-          <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
-            {Object.keys(TASK_TYPE).map((stage) => (
-              <TaskTitle
-                key={stage}
-                label={TASK_TYPE[stage]} // Display the task stage label (e.g., To Do, In Progress, Completed)
-                className={`bg-${stage === "todo" ? "blue" : stage === "in-progress" ? "red" : "green"}-600`} // Different background for each stage
-                onClick={() => handleFilterChange(stage)} // Use the handler from the parent for filtering
-              />
-            ))}
-            <TaskTitle
-              label="All Tasks" // Show "All Tasks" filter option
-              className="bg-gray-600"
-              onClick={() => handleFilterChange("all")} // Reset filter to show all tasks
-            />
-          </div>
+          <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-4 py-4">
+  {Object.keys(TASK_TYPE).map((stage) => (
+    <TaskTitle
+      key={stage}
+      label={TASK_TYPE[stage]} 
+      className={`bg-${stage === "todo" ? "gray" : stage === "completed" ? "gray" : "gray"}-500 text-white p-2 rounded`}
+      onClick={() => handleFilterChange(stage)} // Use the handler from the parent for filtering
+    />
+  ))}
+  <TaskTitle
+    label="All Tasks" // Show "All Tasks" filter option
+    className="bg-gray-600 text-white p-2 rounded"
+    onClick={() => handleFilterChange("all")} // Reset filter to show all tasks
+  />
+</div>
+
         )}
 
         {/* Display tasks based on selected view (Board or List) */}

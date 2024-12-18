@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import PersonalTaskForm from "./taskComponents/personalTaskForm";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Calender from "./taskComponents/Calender";
 
 const MyWorkOutlet = () => {
     const [personalTasks, setPersonalTasks] = useState([]);
@@ -157,6 +158,10 @@ const MyWorkOutlet = () => {
 
     return (
         <>
+      <div className="calendar-container">
+        <Calender />
+      </div>
+
             <div className="max-w-5xl mx-auto p-4">
                 {/* Today Header */}
                 <div className="flex justify-between items-center flex-wrap">
@@ -210,6 +215,7 @@ const MyWorkOutlet = () => {
                 <div className="w-full">
                     <h2 className="text-lg pb-1 font-semibold text-gray-800">{task.title}</h2>
                     <p className="text-gray-500">{task.description}</p>
+                    {/* <p className="text-gray-500">{task.priority}  Priority</p> */}
                     <div className="flex items-center mt-2">
                         <i className="far fa-calendar-alt text-red-500"></i>
                         <span className="text-red-500">
