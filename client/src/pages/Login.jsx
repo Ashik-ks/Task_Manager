@@ -126,7 +126,7 @@ const Login = () => {
                 error={errors.password ? errors.password.message : ''}
               />
 
-              <span className='text-sm text-gray-500 hover:text-red-600 hover:underline cursor-pointer'>
+              <span className='text-sm text-gray-500 hover:text-red-600 hover:underline cursor-pointer' onClick={()=>{navigate(`/emailverification`)}}>
                 Forget Password?
               </span>
 

@@ -9,6 +9,8 @@ import Todos from './pages/Todos';
 import Trash from './pages/trash';
 import TaskDetails from './pages/TaskDetails';
 import MyWork from './pages/myWork';
+import EmailVerification from './pages/EmailVerification';
+import ForgotPassword from './pages/forgotPassword';
 
 function App() {
 
@@ -24,6 +26,8 @@ function App() {
     <Route path="/trash/:id/:role" element={<Trash />} />
     <Route path="/taskdetails/:id/:role/:tid" element={<TaskDetails />} />
     <Route path="/mywork/:id/:role" element={<MyWork />} />
+    <Route path="/emailverification" element={<EmailVerification />} />
+    <Route path="/forgotPassword" element={<ForgotPassword />} />
 
   </Routes>
   )

@@ -7,6 +7,7 @@ const User = require('../db/model/user');
 const { success_function, error_function } = require('../utils/responsehandler');
 const Notification = require('../db/model/notification');
 const set_register_template = require("../utils/emailTemplates/registerDetails").registerdetails;
+const set_forgot_template = require("../utils/emailTemplates/forgotpassword").forgetPassword;
 const sendEmail = require("../utils/send-email").sendEmail;
 
 
@@ -300,6 +301,79 @@ exports.getuser = async function (req, res) {
   } catch (error) {
     console.error("Error fetching user:", error);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.forgotPasswordController = async function (req, res) {
+  try {
+    const email = req.body.email;
+    if (!email) {
+      return res.status(400).send({ success: false, message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+
+    const resetToken = jwt.sign(
+      { user_id: user._id },
+      process.env.PRIVATE_KEY,
+      { expiresIn: "10m" }
+    );
+
+    await User.updateOne({ email }, { $set: { password_token: resetToken } });
+
+    // const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
+    // const emailTemplate = await set_forgot_template(user.name, resetLink);
+    // sendEmail(email, "Forgot password", emailTemplate);
+
+    res.status(200).send({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.passwordResetController = async function (req, res) {
+  try {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
+      return res.status(401).send({ success: false, message: "Authorization header missing" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
+    console.log("decoded : ",decoded)
+
+    const password = req.body.confirmpassword;
+    console.log("password :",password)
+    if (!password) {
+      return res.status(400).send({ success: false, message: "Password is required" });
+    }
+
+    const user = await User.findOne({ _id: decoded.user_id, password_token: token });
+    console.log("user : ",user)
+    if (!user) {
+      return res.status(403).send({ success: false, message: "Invalid or expired token" });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(password, salt);
+
+    await User.updateOne(
+      { _id: decoded.user_id },
+      { $set: { password: passwordHash, password_token: null } }
+    );
+
+    res.status(200).send({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error(error);
+    if (error.name === "TokenExpiredError") {
+      res.status(401).send({ success: false, message: "Token expired" });
+    } else {
+      res.status(500).send({ success: false, message: "Internal server error" });
+    }
   }
 };
 

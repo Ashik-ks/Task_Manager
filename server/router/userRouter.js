@@ -20,6 +20,9 @@ router.get('/getuser/:id',userController.getuser);
 router.put("/profile/:id", userController.updateUserProfile);
 router.put("/read-noti/:id/:nid", userController.markNotificationRead);
 router.put("/change-password/:id",userController.changeUserPassword);
+router.post("/forgotPasswordController",setAccessControl('*'),userController.forgotPasswordController);
+router.patch('/reset-password', setAccessControl('*'),userController.passwordResetController);
+
 
 //FOR ADMIN ONLY ROUTES
 
